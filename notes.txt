@@ -1,0 +1,281 @@
+- Intro
+  - Feel free to interrupt me if you're lost or if I'm going too fast
+  - I'm assuming you know basic programming concepts, so I plan on only
+    discussing things that are unique about "The Ruby Way" of doing things
+
+- What is Ruby?
+  - Scripting language akin to Python
+  - Not Rails. Rails is a web framework.
+
+- Why Ruby?
+  - We'll talk more about that later.
+
+- Time to code
+  - Using Repl.it (possibly fork)
+  - Ruby 1.8.7 (explain versioning)
+  - Repl setup
+
+- Core principle: Everything is an object
+  - 4 is an object (4.class -> Fixnum)
+  - Fixnum is an object (4.class.class -> Class)
+  - This is important; most of everything is done with instance methods
+    - Instantiation
+    - Iteration (more later, but show (1..10).each and [1,2,3].each)
+
+- Duck typing
+  - Don't type check (a.class == Fixnum)
+  - Example: Fixnum#abs
+  - a.respond_to?(:abs)
+  - ex: obj.to_s
+
+- Methods
+  - Can have ?, ! at the end (for checks and warnings)
+  - ? for (def div_five?(x))
+  - ! for sort
+  - Parens not needed (a.respond_to? :abs)
+  - Not in defs either (def foo x, y, z; puts (x+y)/z; end)
+  - When to use them
+  - Chaining!
+      "Hello world".split.first.upcase.chars.to_a.first(2).last.to_i(16)
+    - Not just by design, but convention of design. Write classes with chaining
+      in mind!
+  - NO CLOSURE (a = 0; def increment_a...)
+    - have to use lambda {} and .call
+
+- Returning
+  - (Remove return)
+  - Ruby returns result of last statement
+  - (Show with if block and param zero=false)
+  - (result = if-block; return not result)
+  - Can use return to break out early
+
+- Classes
+  - Going back to "Everything is an instance of class"
+  - Can re-open classes
+  - (Augment div_five? for class Fixnum)
+  - Ruby 2.0 control scope
+
+- Convention
+  - Constants
+  - method_and_variables
+  - camelCase is ok
+  - 1_000 long numbers
+
+- Conditions
+  - Truthiness
+    - nil (also an object), false
+    - (0 and "" and [] and true)
+  - || vs or, && vs and
+    - (reference || in if-negative return, replace with "or")
+    - || for conditions, "or" for actions
+    - Bad cases: 
+      - not true and false => (not true) and (false)
+        not true && false => not (true && false)
+
+      - x = true and false => (x = true) and (false)
+        x = true && false => x = (true && false)
+
+      - true or false ? 'true' : 'false' => true or (false ? 'true' : 'false')
+        true || false ? 'true' : 'false' => (true or false) ? 'true' : 'false'
+
+      - not true == false => not (true == false)
+      - ! true == false => (! true) == false
+  - backend (x = x.abs if negative)
+  - unless (return self == 5 unless negative)
+
+- Loops and blocks
+  - while loops (i=0; while not i.div_five?; ...)
+    - backend while (i += 1 while not i.div_five?)
+    - like "unless", equivalent is "until"
+  - for loops mostly unused
+  - (0..5).each
+    - Brief explain .. vs ...
+    - Call for #<Enumerable>, explain inspect
+  - Attach block with (puts "block")
+    - |i|, #{i}
+  - do/end interchangability with { }
+    - USUALLY. {} binds too tightly to params, do/end too lose with puts
+        [1, 2].reduce 0 {|acc, i| acc + i}
+        puts [1, 2].map do |i| i ** 2; end
+
+- More about blocks
+  - Used all over the place
+      File.open("file.txt") do |f|
+        puts f.readline until f.eof?
+      end
+  - Blocks have closure / shadowing
+      i = 0
+      (0..3).each do |i|
+        i += 1
+      end
+      puts i
+  - (0..10).map do |i| i ** 2 end
+    - Returning last statement
+    - next is continue, break is break
+        (0..10).map {|i| break i ** 2 if i.div_five?}
+  - filter doesnt exist! Sort of...
+  - Sidebar: aliases; map => collect, reduce => inject, [filter] => select
+  - select i % 2
+    - on new line
+    - error! (r 1.8)
+    - use \
+  - reduce |a,b| a+b
+  - example how chaining blocks is awesome
+    - can even chain off do-end (join " ")
+
+  - (Put select first with div_five?)
+    - replace with &:div_five?
+    - :symbol is a string that represents something internal
+      - key of hash ({ :id => 1, :first_name => "Doug" })
+    - :+ in reduce, :square in map? YES -> add it to Fixnum
+
+  - Static method on Fixnum::ten_fives
+      def self.ten_fives
+        10.times do |i|
+          puts i * 5
+        end
+      end
+    - Supply block to remove error
+    - What if you didn't?
+        return "We need a block!" unless block_given?
+    - &my_block
+        (0..45).step(5).each(&my_block)
+
+- Any questions?
+
+- Our own class (Student)
+  - fear of classes
+  - #new()
+    - Show different ids in inspect
+  - initialize(id, name)
+  - @instance_vars
+  - students[]
+  - try getting .name
+    - everything is a method!
+    - attr_reader
+    - show method equivalent
+  - try setting
+    - attr_writer
+    - show equivalent
+  - attr_accessor
+    - remove equivalent and do :id, :name
+
+- Sorting
+  - .sort doesn't work on our list of students
+      students.sort do |a, b|
+        if a.id < b.id
+          -1
+        elsif a.id > b.id
+          1
+        else
+          0
+        end
+      end
+  - sort_by is awesome omg
+    - {|student| student.id}
+    - (-student.id) for reverse
+    - &:id or &:name
+  - what if we want to keep sort info in class?
+  - <=> method
+    - we can copy paste our data from before OR
+    - @id <=> other.id
+    - can swap for reverse
+    - @id -> id
+      - no object implies self
+      - id is a method
+
+- Require
+  - Example: 'set'
+  - Can use slashes for paths: 'webrick/https'
+  - Local things with require './file' or require_relative './file'
+  - Searches $: for files of that name
+  - Warning: 1.9.2 removed '.' from path
+  - Runs contents of file
+  - Constants (classes) are global - everything should be a class!
+
+- Cool tricks
+  - operators as methods [], []=, **, !, ~, +@, -@, *, /, %, +, -, >>, <<, &, ^,
+    |, ==, etc
+    - "%.2f" % flt
+  - splats
+    - 1.9: def func(*args, last)
+    - car, *cdr = list
+    - 1.9: [1, 2, *var, 3, 4, 5]
+  - structs
+
+- Why to use Ruby?
+  - Extremely developer friendly
+  - Well documented (officially and unofficially)
+  - Write clear, readable code that is easy to refactor
+  - Frameworks (Rails, Sinatra)
+  - Gems
+    - Community of libraries
+    - Writing libraries
+    - Using libraries
+
+- Why not to use Ruby?
+  - Slow! (ish!)
+  - Memory overhead
+
+- Playlist Generator
+  - Mysql
+    - regex match
+    - $1
+  - Sqlite3
+    - heredoc
+    - return keyword?
+  - YouTube
+    - instance variable
+    - ||=
+    - method(a: 1, b: 2)
+
+- Other projects
+  - ID3 tag
+  - Weight Track
+  - Progcomp
+
+- Challenges
+  - ProjectOILER (1-10)
+  - Make a graph and run dijkstra's on it (or your algo of choice)
+  - Implement a War game for more than 2 players
+  - Poker hands (http://projecteuler.net/problem=54)
+
+- WAR
+  - Explain game
+  - Deck
+  - Card
+    - Do not use Struct.new
+  - Deck.new with @cards
+  - Card::FACES %w
+  - Card#inspect
+  - Game start (With setup code)
+  - shuffle!
+  - @players
+  - Refactor Deck to inherit
+  - (refresh)
+  - Player
+  - split out setup/play
+  - play loop
+  - define "losing"
+  - stack (one card from each player)
+  - @player.map{}, draw method, &:draw
+  - Refactor to stack
+    - explain stack
+    - tie?
+      - reduce
+      - what is <=>? Write it for card
+        - now we can sort!
+    - winner
+      - [Card.new, ...]
+      - max -> index
+    - move initialize block yield
+    - give winner cards, player <<
+      - shuffle
+  - Defeat
+    - on draw
+    - Class.new
+    - rescue > finish
+  - winner = find victory
+  - puts #{ winner }
+    - @@next_id
+  - @rounds?
