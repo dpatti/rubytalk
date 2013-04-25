@@ -18,6 +18,10 @@ Ruby development at RPI. In this repository, we have...
 I mentioned that there are some resources that you can use to get better at
 Ruby. Here's a list of some of them.
 
+* [Download Ruby](http://www.ruby-lang.org/en/downloads/) - This guide has
+  instructions for different operating systems. It's pretty easy, unless you
+  start installing multiple versions. Then you're in deep if you're not using
+  RVM.
 * [repl.it](http://repl.it/languages/Ruby) - We used this during the
   presentation. Write code in your browser and play with it in runtime. Quite
   handy.
